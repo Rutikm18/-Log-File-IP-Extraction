@@ -1,116 +1,126 @@
-# IP Extractor
+# IP Extractor: Dynamic Log File IP Processing
 
 ## Overview
 
-The **IP Extractor** is a Python application designed to efficiently extract and classify IP addresses from log files. The tool identifies and separates private and public IPs, storing them in MongoDB for further analysis. This project leverages concurrent processing for faster extraction and uses advanced IP matching techniques.
+The **IP Extractor** is a sophisticated Python application designed to dynamically extract and classify IP addresses from log files. The tool provides real-time IP address identification, classification, and MongoDB storage with continuous monitoring and processing capabilities.
 
-## Features
+## Key Features
 
-- Extracts IPv4 addresses from log files.
-- Classifies IP addresses into private and public categories.
-- Stores classified IPs in MongoDB.
-- Utilizes concurrent processing for efficient log file parsing.
-- Configurable log file and extraction intervals.
+- 🔍 Dynamic log file processing
+- 🌐 Automatic IP address extraction
+- 🏗️ IP classification (private vs. public)
+- 📦 MongoDB storage integration
+- 🚀 Concurrent processing for efficiency
+- ♻️ Continuous monitoring and extraction
+
+## How It Works
+
+The application continuously monitors a specified log file and performs the following tasks:
+
+1. **Dynamic File Scanning**: 
+   - Automatically processes the designated log file
+   - Supports real-time updates and file changes
+   - Configurable scanning interval (default: 10 seconds)
+
+2. **IP Address Extraction**:
+   - Uses advanced regex for comprehensive IP detection
+   - Supports IPv4 address extraction
+   - Filters out unspecified, reserved, and multicast addresses
+
+3. **IP Classification**:
+   - Categorizes IPs into private and public networks
+   - Identifies IPs within standard private network ranges:
+     - 10.0.0.0/8
+     - 172.16.0.0/12
+     - 192.168.0.0/16
+
+4. **MongoDB Integration**:
+   - Stores extracted IPs in separate collections
+   - Supports easy configuration of MongoDB connection
+   - Provides clear logging of extraction process
 
 ## Project Structure
 
 ```
 ip_extractor/
 │
-├── config/
-│   ├── __init__.py
-│   └── settings.py            # Configuration settings for the application
-│
-├── core/
-│   ├── __init__.py
-│   ├── ip_validator.py        # Validates and categorizes IP addresses
-│   └── ip_extractor.py        # Extracts and classifies IP addresses from log files
-│
-├── database/
-│   ├── __init__.py
-│   └── mongodb_manager.py     # Handles MongoDB operations for storing IPs
-│
-├── utils/
-│   ├── __init__.py
-│   └── logging_config.py      # Configures application-wide logging
-│
-└── main.py                    # Main entry point for continuous IP extraction
+├── src/
+│   └── main.py             # Core extraction logic
+├── data/
+│   └── access.log          # Log file to be processed
+├── Dockerfile              # Docker containerization
+└── docker-compose.yml      # Docker composition
 ```
-
-## Requirements
-
-- Python 3.6 or higher.
-- MongoDB (local or remote server).
-
-### Install Dependencies
-
-First, install the required Python libraries by running the following command:
-
-```bash
-pip install -r requirements.txt
-```
-
-### MongoDB Setup
-
-Ensure that MongoDB is running on your local or remote server. Update the connection URI in `main.py` to reflect the correct MongoDB address.
 
 ## Configuration
 
-All the key configuration settings are stored in `config/settings.py`. You can modify the following settings:
+### Log File Configuration
 
-- **PRIVATE_NETWORKS**: List of private IP address ranges.
-- **MONGODB_URI**: MongoDB connection URI.
-- **DATABASE_NAME**: The name of the database in MongoDB.
-- **PRIVATE_IPS_COLLECTION**: Collection name for storing private IPs.
-- **PUBLIC_IPS_COLLECTION**: Collection name for storing public IPs.
-- **LOG_FILE_PATH**: Path to the log file that will be scanned for IP addresses.
-- **CHUNK_SIZE**: Size of each chunk for reading the log file.
-- **EXTRACTION_INTERVAL**: Interval in seconds between extractions.
+- **Default Location**: `data/access.log`
+- **Customization**: Easily change log file path in `main.py`
+- **Supports**: Any text-based log file with IPv4 addresses
 
-## Running the Project
+### MongoDB Configuration
 
-To start the IP extraction process, simply run the `main.py` script:
+- **Connection URI**: Configurable in `main.py`
+- **Default URI**: `mongodb://mongodb:27017`
+- **Collections**:
+  - `private_ips`: Stores private IP addresses
+  - `public_ips`: Stores public IP addresses
 
-```bash
-python main.py
-```
+## Docker Deployment
 
-### What Happens:
-1. The script connects to the MongoDB server.
-2. It extracts IP addresses from the specified log file (`access.log`).
-3. It classifies IPs into private and public categories.
-4. It stores the extracted IPs in the `private_ips` and `public_ips` collections in MongoDB.
-5. The process runs continuously every 10 seconds (configurable).
+### Prerequisites
+- Docker
+- Docker Compose
+
+### Deployment Steps
+
+1. Clone the repository
+2. Configure log file and MongoDB settings
+3. Run deployment:
+   ```bash
+   docker-compose up --build
+   ```
+
+## Customization Options
+
+- Modify `PRIVATE_NETWORKS` to include additional private IP ranges
+- Adjust scanning interval in the `time.sleep()` function
+- Configure logging levels and formats
+
+## Performance Considerations
+
+- Uses `ProcessPoolExecutor` for concurrent processing
+- Chunk-based file reading for memory efficiency
+- Minimal resource consumption
 
 ## Logging
 
-Logging is configured using Python's built-in logging module. By default, the logging level is set to `INFO`, but you can modify the level in `logging_config.py` to `DEBUG` or `ERROR` depending on your needs.
+Comprehensive logging provides insights into:
+- MongoDB connection status
+- IP extraction details
+- Error tracking
 
-### Example Log Output:
-
+**Log Format**: 
 ```
-2025-03-27 10:15:00 - INFO: Successfully connected to MongoDB!
-2025-03-27 10:15:05 - INFO: Extracted 10 private IPs
-2025-03-27 10:15:05 - INFO: Extracted 5 public IPs
-2025-03-27 10:15:10 - INFO: Stored 10 private and 5 public IPs
+2024-03-28 10:15:00 - INFO: Successfully connected to MongoDB!
+2024-03-28 10:15:05 - INFO: Extracted 10 private IPs
+2024-03-28 10:15:05 - INFO: Extracted 5 public IPs
 ```
 
-## MongoDB Storage
+## Extensibility
 
-The extracted IP addresses are stored in MongoDB under the following collections:
-- **private_ips**: Stores private IP addresses.
-- **public_ips**: Stores public IP addresses.
-
-Each IP address is stored as a document in its respective collection.
-
-## Next Steps & Enhancements
-
-Here are some suggested improvements:
-- **Unit Testing**: Add unit tests for the key modules like IP extraction, validation, and MongoDB storage.
-- **Docker Support**: Create a Docker container to easily deploy the application.
-- **Error Handling**: Implement retries and error handling for MongoDB connectivity issues.
-- **Configuration Management**: Implement environment-specific configurations to handle different setups for development, staging, and production.
+Future enhancements can include:
+- Advanced IP reputation checking
+- Support for IPv6
+- Enhanced error handling
+- More granular IP classification
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is open-source and available under the MIT License.
+
+## Contributions
+
+Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
