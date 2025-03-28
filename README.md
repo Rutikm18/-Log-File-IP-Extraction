@@ -77,17 +77,12 @@ ip_extractor/
 ### Deployment Steps
 
 1. Clone the repository
-2. Configure log file and MongoDB settings
+2. Add your log file under data with name access.log
 3. Run deployment:
    ```bash
    docker-compose up --build
    ```
 
-## Customization Options
-
-- Modify `PRIVATE_NETWORKS` to include additional private IP ranges
-- Adjust scanning interval in the `time.sleep()` function
-- Configure logging levels and formats
 
 ## Performance Considerations
 
@@ -116,11 +111,3 @@ Future enhancements can include:
 - Support for IPv6
 - Enhanced error handling
 - More granular IP classification
-
-## License
-
-This project is open-source and available under the MIT License.
-
-## Contributions
-
-Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
